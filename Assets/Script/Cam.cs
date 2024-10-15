@@ -14,13 +14,13 @@ public class Cam : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void  FixedUpdate()
     {
         if (lookAtEnabled)
         {
             Vector3 dir = lookAt.position - transform.position;
             Quaternion targetRot = Quaternion.LookRotation(dir);
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, 0.01f);
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, 1-Mathf.Pow(0.01f, Time.deltaTime));
         }
     }
 }
