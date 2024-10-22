@@ -7,9 +7,10 @@ using UnityEngine;
 public class Grab : MonoBehaviour
 {
     Transform grabTarget;
-    bool isGrabbed = false;
+    public bool isGrabbed = false;
 
     public bool isHighlight = false;
+    public int lineMatIndex = 1;
     float lineAmt = 1.1f;
     // Start is called before the first frame update
     void Start()
@@ -26,11 +27,12 @@ public class Grab : MonoBehaviour
         {
             lineAmt = 0f;
         }
-        gameObject.GetComponent<MeshRenderer>().materials[1].SetFloat("_Amount", lineAmt);
+        gameObject.GetComponent<MeshRenderer>().materials[lineMatIndex].SetFloat("_Amount", lineAmt);
 
         if (grabTarget != null && isGrabbed)
         {
             transform.position = grabTarget.position;
+            transform.rotation = Quaternion.identity * Quaternion.AngleAxis(-90f, Vector3.right);
         }
     }
     public Grab highlight()
@@ -49,10 +51,11 @@ public class Grab : MonoBehaviour
         GetComponent<BoxCollider>().enabled = false;
         return this;
     }
-    public void letgo()
+    public void letgo(Vector3 vel)
     {
         isGrabbed = false;
         grabTarget = null;
+        GetComponent<Rigidbody>().velocity = vel;
         GetComponent<BoxCollider>().enabled = true;
     }
 }

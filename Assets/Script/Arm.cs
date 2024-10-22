@@ -15,7 +15,8 @@ public class Arm : MonoBehaviour
     public Transform destination;
     public Transform root;
     public Transform cam;
-
+    public Transform handRotController;
+    public Transform grabPos;
     public float speed = 5;
     public float radius;
     public float armExt = 0.8f;
@@ -72,17 +73,17 @@ public class Arm : MonoBehaviour
 
         int rcLayerMask = 1 << 3;
         RaycastHit hit;
-        if (Physics.Raycast(root.position, (handCollider.position-root.position).normalized, out hit, radius, rcLayerMask))
+        if (Physics.Raycast(root.position, (grabPos.position-root.position).normalized, out hit, radius*1.5f, rcLayerMask))
         {
-            Debug.DrawRay(root.position, (handCollider.position - root.position).normalized * hit.distance, Color.yellow);
+            Debug.DrawRay(root.position, (grabPos.position - root.position).normalized * hit.distance, Color.yellow);
             Grab gc = hit.transform.gameObject.GetComponent<Grab>();
-            if (gc != null)
+            if (gc != null && Hili == null && grab == null)
             {
                 Hili = gc.highlight();
             }
         } else
         {
-            Debug.DrawRay(root.position, (handCollider.position - root.position).normalized * radius, Color.white);
+            Debug.DrawRay(root.position, (grabPos.position - root.position).normalized * radius, Color.white);
             if (Hili != null)
             {
                 Hili.unhighlight();
@@ -90,14 +91,14 @@ public class Arm : MonoBehaviour
             }
         }
 
-        if (Hili && (Input.GetAxis("Action_Grab") > 0.2f))
+        if (Hili && (Input.GetAxis("Action_Grab") > 0.2f) && grab == null)
         {
-            grab = Hili.grab(handCollider);
+            grab = Hili.grab(grabPos);
         }
         if (grab && (Input.GetAxis("Action_Grab") < 0.2f))
         {
-            print("test");
-            grab.letgo();
+            grab.letgo(handCollider.GetComponent<Rigidbody>().velocity);
+            grab = null;
         }
 
 
@@ -108,5 +109,6 @@ public class Arm : MonoBehaviour
         hintTargetPos = Quaternion.AngleAxis(45, Vector3.up) * hintTargetPos;
         hintTargetPos *= 5f;
         ikHint.position = hintTargetPos;
+        handRotController.LookAt(handCollider.position);
     }
 }
